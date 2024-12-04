@@ -1,5 +1,5 @@
 ---
-title: "Toy Analysis"
+title: "Analysis"
 author: "Erwin Lares"
 affiliation: "Research Cyberinfrastructure at DoIT"
 format:
@@ -137,22 +137,10 @@ ggsave("fl-mm-plot.png")
 
 ## Saving the code
 
-Saving the code requires a little detour. To recap, we have a document that is mostly written in language intended to be read by humans; it has formatted text to make it easier to read, contains images and diagrams to better understand the points we are trying to get across, *and* it contains the code that performs the calculations associated with the research. Computers, however, are not interested in any of prose, just the code. 
+To recap, we have a document that is mostly written in language intended to be read by humans; it has formatted text to make it easier to read, contains images and diagrams to better understand the points we are trying to get across, *and* it contains the code that performs the calculations associated with the research. As data scales up, it may make sense to avoid the document-rendering overhead computation costs, besides are not interested in any of the prose, just the code.
 
-Fortunately for us, `knitr`, the engine that powers R in Quarto, contains the function `purl()` that extract just the R code from the Quarto document. Coupled with the package `rstudioapi::getDocument()` we can handle a of the Quarto document the .R file needs to be created from.
+We can leverage `knitr`, the engine that powers R in Quarto, to extract just the R code from the Quarto document using the `purl()` function. The code chunk below accomplishes the task described above and creates an .R file from the .qmd in the same directory and sharing the same name. 
 
-The code chunk below accomplishes the task described above and creates an .R file from the .qmd in the same directory and sharing the same name. 
-
-```{r}
-#| eval: false
-
-rstudioapi::documentPath() |>
-  basename() |> #makes it a relative path to the project directory
-    knitr::purl("analysis.qmd", documentation = 1) #documentation = 1 extract just the R code
-
-```
-
-Edit: ultimately, I chose to split the analysis part and the container-creation part into different documents, but I could see circumstances in which one may want to keep those together in the same place.
 
 
 
