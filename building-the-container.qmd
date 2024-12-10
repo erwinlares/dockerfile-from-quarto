@@ -14,6 +14,7 @@ knitr:
 
 ```{r}
 library(readr)
+library(progress)
 
 ```
 
@@ -311,11 +312,11 @@ The executable file `analysis.sh` is a shell script that tells CTCondor **what**
 
 The contents of the `analysis.sh` files is shown below
 
-```{bash}
+```{}
 #!/bin/bash
 
-#mkdir results-folder
-#Rscript analysis.R
+mkdir results-folder
+Rscript analysis.R
 
 ```
 
@@ -323,9 +324,13 @@ This code chunk copies the `analysis.sh` over to CHTC
 
 ```{bash}
 
-#scp analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
+scp analysis.R data.csv analysis.sub analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
 
 ```
+
+
+
+
 
 ## The last step 
 
