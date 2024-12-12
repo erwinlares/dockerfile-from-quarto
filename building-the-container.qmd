@@ -14,14 +14,15 @@ knitr:
 
 ```{r}
 library(readr)
-library(progress)
 
 ```
 
 
 ## Building a plain .R file
 
-`knitr::purl()` takes as an argument `analysis.qmd` to outputs `analysis.R`. The main reason I chose to do this is because keeping all your code in one place leads to fewer errors and it is easier to maintain. The argument `documentation` controls how much of the prose is ported as comments into the `.R` file. I chose the value of `1` for just the code. 
+`knitr::purl()` takes as an argument `analysis.qmd` to outputs `analysis.R`. The main reason I chose to do this is because keeping all your code in one place leads to fewer errors and it is easier to maintain. Additionally, stripping the analysis to just the `.R` code keeps the computational overhead to a minimum. 
+
+The argument `documentation` controls how much of the prose is ported as comments into the `.R` file. I chose the value of `1` for just the code. 
 
 ```{r}
 #| eval: false
