@@ -15,6 +15,9 @@ knitr:
 ## The long game
 
 The goal being this project is to document the submission process of a R project to CHTC. The main motivation is to lower *the barrier to entry* to CHTC. It is well known (citations?) that the command line constitutes a painpoint for many researchers that keeps them from leveraging the compute resources offered by CHTC. This workflow documents and automates the process of shipping an analysis to the HTC clusters of CHTC.
+```{mermaid}
+
+```
 
 The general steps 
 
