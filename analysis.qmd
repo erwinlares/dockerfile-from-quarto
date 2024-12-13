@@ -14,10 +14,9 @@ knitr:
 
 ## The long game
 
-The goal being this project is to document the submission process of a R project to CHTC. The main motivation is to lower *the barrier to entry* to CHTC. It is well known (citations?) that the command line constitutes a painpoint for many researchers that keeps them from leveraging the compute resources offered by CHTC. This workflow documents and automates the process of shipping an analysis to the HTC clusters of CHTC.
-```{mermaid}
+The goal being this project is to document the submission process of an R project to CHTC. The main motivation is to lower *the barrier to entry* to CHTC. It is well known (citations?) that the command line constitutes a painpoint for many researchers that keeps them from leveraging the compute resources offered by CHTC. 
 
-```
+
 
 The general steps 
 
@@ -55,8 +54,8 @@ For instance you can inform the workflow that your analysis follows using a `Mer
 %%| label: fig-mermaid
 %%| fig-cap: "Analysis workflow "
 flowchart LR
-  A[load the libraries <br>and data] --> B(Prepare <br>the data)
-  B --> C(Perform Calculations)
+  A[load the libraries <br>and data] --> B[Prepare <br>the data]
+  B --> C[Perform Calculations]
   C --> D[Print tabular results]
   C --> E[Render visualizations]
   D -->F[Save tabular results as .csv<br>Save plot as .png]
@@ -131,9 +130,9 @@ The code chunk below accomplishes the latter two using the `write_csv()` functio
 
 ```{r}
 
-moft_bm |> write_csv("moft-bm.csv")
+moft_bm |> write_csv("results-folder/moft-bm.csv")
 
-ggsave("fl-mm-plot.png")
+ggsave("results-folder/fl-mm-plot.png")
 ```
 
 
