@@ -12,8 +12,45 @@ knitr:
     warning: false
 ---
 
+## The long game
+
+The goal being this project is to document the submission process of an R project to CHTC. The main motivation is to lower *the barrier to entry* to CHTC by automating several of the steps involved in a job submission to CHTC. It is well known (citations?) that the command line constitutes a painpoint for many researchers that keeps them from leveraging the compute resources offered by CHTC. 
+
+This workflow details the steps involved in the job submission process. It assumes:
+
+- the analysis is contained in a Quarto markdown or R markdown document.
+- packages dependencies are managed with the `renv` package and a .lock file exists in the project folder.
+- this pipeline requires the user to log in to CHTC account once before running the code chunks present in this document.
+- `podman` is installed in the local machine.
+- the user has a UW-Madison NetID.
+- the user has a`GitLab` account, Furthermore, there is a repo associated with this analysis and the `Container Registry` feature has been enabled for that repo.
+- for the purposes of this pipeline, the file names are `analysis.qmd`, and `data.csv`. The derived files, `analysis.R`, `analysis.sub`, `analysis.sh`, are all created from the original `.qmd` file provided .
+- the user will log in to submit server and execute the condor_submit command on the `analysis.sub` file. The purpose of this pipeline is to do the heavy lifting of containerizing the analysis, build the files required by CHTC, and move them to the user's `/home` directory.
+
+```{mermaid}
+
+%%| label: fig-shippingto-chtc
+%%| fig-cap: "Shipping an analysis to CHTC"
+flowchart LR
+  A[start with a notebook<br> .rmd or .qmd] --> B(strips the code<br>builds a .R script)
+  B --> C[Determines R version]
+  B --> D[Locates .lock file]
+  C --> E[Creates Dockerfile]
+  D --> E
+  E --> F[Build container image]
+  F --> G[Logs in to registry.doit.wisc.edu]
+  G --> H[Pushes image to registry/gitlabuser/repo]
+  H --> I[Creates submit file]
+  I --> J[Creates executable file]
+  j --> K[Copies files + data <br>over CHTC's /home ]
+```
+
+
+
+
 ```{r}
 library(readr)
+library(knitr)
 
 ```
 
@@ -112,6 +149,7 @@ To build a container we are going to create a file called Dockerfile which have 
 
 r_version <- R.Version()
 chtc_user <- "lares"
+gitlab_user <- "erwin.lares"
 
 # fileConn<-file("output.txt")
 # writeLines(c("Hello","World"), fileConn)
@@ -163,6 +201,7 @@ readr::write_lines(COPY_renv_library, file = "Dockerfile",
 
 #install_restore contains the secret sauce to install all dependencies
 #I chose this to go around nested quotation marks issues
+
 readr::write_lines(read_lines("install_and_restore_packages.txt"), 
                    file = "Dockerfile",
                    append = TRUE)
@@ -171,13 +210,13 @@ readr::write_lines(read_lines("install_and_restore_packages.txt"),
 
 ## Build the image 
 
-Once we have a Dockerfile, an image is created by running a `podman image build` command. I chose `podman` rather than `docker` due to recent changes to the Docker License Agreement that can potentially affect UW-Madison users. Read more about this issue [here](https://bcrf.biochem.wisc.edu/2023/11/17/install-local-docker-desktop-on-macos-without-admin/#:~:text=Important%20note%20(oct%2007%2C%202024,Hero%20%7C%20Full%201%20Hour%20Course).
+Once we have a Dockerfile, an image is created by running a `podman image build` command. I chose `podman` rather than `docker` due to recent changes to the Docker License Agreement that can potentially affect UW-Madison users. For reference, using a 2019 MacBook Pro, building the image took aproximately 5 minutes.
 
 
 ```{bash}
-#|eval: false
 
-#podman build -t registry.doit.wisc.edu/erwin.lares/analysis .
+
+podman build -t registry.doit.wisc.edu/erwin.lares/analysis .
 
 ```
 
@@ -199,16 +238,15 @@ You must login to UW-Madison GitLab Container Registry with your NetID credentia
 
 ```{bash}
 
-#podman login registry.doit.wisc.edu
+podman login registry.doit.wisc.edu
 
 ```
 
-As your image was already created, the next step is to push the image to the GitLab Registry. The code chunk below does just that. 
+As your image was already created, the next step is to push the image to the GitLab Registry. The code chunk below does just that. Pushing the container image to the GitLab registry took about 4 minutes.
 
 ```{bash}
-#| eval: false
 
-#podman push registry.doit.wisc.edu/erwin.lares/analysis
+podman push registry.doit.wisc.edu/erwin.lares/analysis
 
 ```
 
@@ -227,24 +265,9 @@ The previous section ended with the publication of the container image to UW-Mad
 To actually run your analysis, there are a few loose ends to take care off 
 
 - You need a [CHTC account](https://chtc.cs.wisc.edu/uw-research-computing/account-details). You will need your NetID credentials gain access.  
-- You will need to copy over to CHTC `analysis.R` and `data.csv`. There is a code chunk that will accomplish that below. 
-- You will also need to copy over two additional files, a submit file and a executable file. There is a code chunk below that will create a copy those files over to CHTC.  
+- You will need to copy `analysis.R` and `data.csv` over to CHTC.
+- You will also need to copy over two additional files, a submit file and a executable file. There is a code chunk below that will create those files.  
 
-### Copying your analysis and data to CHTC 
-
-The Linux command `scp` — secure copy — can take care of copying files from one machine to another. A popup window will ask you to authenticate with your NetID, password, and your MFA device. Follow the prompts. The first chunk will copy the `analysis.R` file; the second chunk will copy over the `data.cvs` file 
-
-```{bash}
-
-#scp analysis.R lares@ap2001.chtc.wisc.edu:/home/lares
-
-```
-
-```{bash}
-
-#scp data.csv lares@ap2001.chtc.wisc.edu:/home/lares
-
-```
 
 ### Generating the submit file 
 
@@ -264,48 +287,64 @@ CHTC requires you to create a submit file. A submit file tells HTCondor informat
 
 The content for the `analysis.sub` is shown below 
 
-```{}
+```{r}
 
-# HTC Submit File
 
-# Provide HTCondor with the name of the Docker container
-container_image = docker://registry.doit.wisc.edu/erwin.lares/analysis
-universe = container
+title_line <- c("# HTC Submit File",
+                "")
 
-# The executable line tell HTCondor what job to run 
-executable = analysis.sh
+container_stanza <- c("# Container stanza provides HTCondor with the name of the container",
+                      "container_image = docker://registry.doit.wisc.edu/erwin.lares/analysis",
+                      "universe = container",
+                      "")
 
-# The “transfer files” lines all tell HTCondor 
-#what to do with output and input files
-transfer_input_files = analysis.R, data.csv
-transfer_output_files = results-folder
+executable_stanza <- c("# The executable line tell HTCondor what job to run",
+                      "executable = analysis.sh",
+                      "")
 
-#The log, output and error files all track 
-#information printed by the job or about the job
-log = job.log
-error = job.err
-output = job.out
+transfer_stanza <- c("# The “transfer” stanza tells HTCondor ",
+                     "# what to do with output and input files",
+                     "transfer_input_files = analysis.R, data.csv",
+                     "transfer_output_files = results-folder",
+                     "")
 
-# The request stanza tells HTCondor how many 
-#resources on the computer that you need to run 
-#your jobs.
-request_cpus = 1
-request_memory = 4GB
-request_disk = 2GB
+jobs_stanza <- c("# the jobs stanza tracks information printed",
+                 "# by the job or about the job",
+                 "log = job.log",
+                 "error = job.err",
+                 "output = job.out",
+                 "")
 
-# The queue stanza creates the number of separate jobs indicated when the submit file is submitted. 
+request_stanza <- c("# The request stanza tells HTCondor what",
+                    "# resources what resources to allocate ",
+                    "request_cpus = 1",
+                    "request_memory = 4GB",
+                    "request_disk = 2GB",
+                    "")
 
-queue 1
+queue_stanza <- c("# The queue stanza tells HTCondor the number",
+                  "# of separate jobs requested",
+                  "queue 1",
+                  "")
+
+readr::write_lines(title_line, file = "analysis.sub")
+readr::write_lines(container_stanza, file = "analysis.sub", 
+                   append = TRUE)
+readr::write_lines(executable_stanza, file = "analysis.sub", 
+                   append = TRUE)
+readr::write_lines(transfer_stanza, file = "analysis.sub", 
+                   append = TRUE)
+readr::write_lines(jobs_stanza, file = "analysis.sub", 
+                   append = TRUE)
+readr::write_lines(request_stanza, file = "analysis.sub", 
+                   append = TRUE)
+readr::write_lines(queue_stanza, file = "analysis.sub", 
+                   append = TRUE)
+
+
 
 ```
 
-This code chunk copies the content of `analysis.sub` over to CHTC. 
-
-```{bash}
-
-#scp analysis.sub lares@ap2001.chtc.wisc.edu:/home/lares
-
-```
 
 ### Generating an executable file 
 
@@ -313,24 +352,33 @@ The executable file `analysis.sh` is a shell script that tells CTCondor **what**
 
 The contents of the `analysis.sh` files is shown below
 
-```{}
-#!/bin/bash
+```{r}
 
-mkdir results-folder
-Rscript analysis.R
+
+title_line <- c("#!/bin/bash", "")
+output_folder_line <- "mkdir results-folder"
+run_line <- "Rscript analysis.R"
+
+readr::write_lines(title_line, file = "analysis.sh")
+readr::write_lines(output_folder_line, file = "analysis.sh", 
+                   append = TRUE)
+readr::write_lines(run_line, file = "analysis.sh", 
+                   append = TRUE)
 
 ```
 
-This code chunk copies the `analysis.sh` over to CHTC
+
+
+### Copying your analysis and data to CHTC 
+
+The Linux command `scp` — secure copy — can take care of copying files from one machine to another. A popup window will ask you to authenticate with your NetID, password, and your MFA device. Follow the prompts. The code chunk copies all the derived files and the data over to CHTC
+
 
 ```{bash}
 
 scp analysis.R data.csv analysis.sub analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
 
 ```
-
-
-
 
 
 ## The last step 
@@ -355,7 +403,7 @@ condor_submit analysis.sub
 
 ```
 
-If you want to track the progress, you can run a `condor_watch_q` command. You can read more about it [here](https://chtc.cs.wisc.edu/uw-research-computing/condor_q)
+To track the job progress, run a `condor_watch_q` command. You can read more about it [here](https://chtc.cs.wisc.edu/uw-research-computing/condor_q)
 
 ```{}
 
@@ -366,6 +414,8 @@ condor_watch_q
 ```
 
 Good luck submitting your job to CHTC. If you have questions about this document, get in touch with us via email `rstudio-support@office365.wisc.edu`. Don't forget CHTC's facilitation team is ready to help you too! They can be reached at `chtc@cs.wisc.edu`.
+
+If you have question regarding this workflow, get in contact with me ... 
 
 
 
