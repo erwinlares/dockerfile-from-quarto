@@ -14,8 +14,7 @@ submit_to_htc <- function(notebook,
                           submit_server = "ap2001",
                           gitlab_repo = "analysis",
                           gitlab_registry = "registry.doit.wisc.edu",
-                          gitlab_id = "erwin.lares"
-){
+                          gitlab_id = "erwin.lares"){
 
 #1/10
 print("Step 1 of 10 ... locating .lock file ...") 
@@ -124,7 +123,10 @@ print("Step 2 of 10 ... creating .R script file ... ")
 
 }
 
-submit_to_htc("analysis.qmd")
+submit_to_htc("analysis.com")
+
+
+
 
 
 

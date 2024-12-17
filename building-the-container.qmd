@@ -279,7 +279,7 @@ CHTC requires you to create a submit file. A submit file tells HTCondor informat
 
 - How many standard resources you need (CPUs, memory, disk)
 
-- Where to record data about the job
+- Where to store data about the job
 
 - Special requirements: GPUs, access to Gluster, a certain operating system
 
