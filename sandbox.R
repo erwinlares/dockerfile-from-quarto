@@ -1,12 +1,8 @@
 # Load the jsonlite package to read JSON files
 
-
-library(jsonlite)
 library(glue)
 library(readr)
 library(tidyverse)
-
-
 
 submit_to_htc <- function(notebook,
                           data = "data.csv",
@@ -16,7 +12,7 @@ submit_to_htc <- function(notebook,
                           gitlab_registry = "registry.doit.wisc.edu",
                           gitlab_id = "erwin.lares"){
 
-#1/10
+# 1/10
 print("Step 1 of 10 ... locating .lock file ...") 
     
 #check that the file exist/renv.lock exist
@@ -75,7 +71,7 @@ print("Step 2 of 10 ... creating .R script file ... ")
     readr::write_lines(COPY_renv_library, file = "Dockerfile",
                        append = TRUE)
 #this line is potentially problematic. How do I store a .txt inside a package?
-    readr::write_lines(read_lines("install_and_restore_packages.txt"), 
+    readr::write_lines(read_lines("install_and_restore_packages.sh"), 
                        file = "Dockerfile",
                        append = TRUE)
     
@@ -123,7 +119,8 @@ print("Step 2 of 10 ... creating .R script file ... ")
 
 }
 
-submit_to_htc("analysis.com")
+submit_to_htc("analysis.qmd")
+submit_to_hpc("")
 
 
 

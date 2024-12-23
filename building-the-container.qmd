@@ -202,7 +202,7 @@ readr::write_lines(COPY_renv_library, file = "Dockerfile",
 #install_restore contains the secret sauce to install all dependencies
 #I chose this to go around nested quotation marks issues
 
-readr::write_lines(read_lines("install_and_restore_packages.txt"), 
+readr::write_lines(read_lines("install_and_restore_packages.sh"), 
                    file = "Dockerfile",
                    append = TRUE)
 
