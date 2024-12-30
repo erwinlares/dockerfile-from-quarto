@@ -120,6 +120,10 @@ print("Step 2 of 10 ... creating .R script file ... ")
 }
 
 submit_to_htc("analysis.qmd")
+log 
+
+
+
 submit_to_hpc("")
 
 
@@ -127,7 +131,7 @@ submit_to_hpc("")
 
 
 
-
+map(script, data, submit_to_htc)
 
 
 
