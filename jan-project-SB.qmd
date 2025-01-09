@@ -1,0 +1,95 @@
+---
+title: "workflow for HTC and HPC"
+author: "EL & SB"
+format: html
+---
+
+## Context 
+
+EL created a workflow in R intended to help people leverage CHTC resources. 
+
+At this time the workflow works for the HTC cluster only and does this: 
+ 
+grabs an R script and scans the packages use by the analysis
+creates a docker image with the appropriate dependencies
+uploads the image to the DoIT gitlab images registry
+creates a Condor submission file
+creates a Condor executable file
+uploads the R script,  the data, the submission, and the executable file to CHTC
+ 
+Question: what is the right type of license MIT or CC BY 4.0?
+
+After meeting with some of the CHTC folks, it is clear some aspects of the workflow need to change. In addition, the last project for SB is to adapt the workflow to make submissions to the HPC cluster as well. 
+
+## Meeting on 2025-01-09
+
+Goals: 
+
+Describe the workflow and discuss the changes needed to meet the feedback from CHTC.
+
+Document the workflow and write up rationalization and explanations for first time users. Critical points we want to address 
+
+- overview of the submission process 
+- changes to 
+
+## Original Workflow
+
+Assumptions:
+    
+- the analysis is contained within a `Quarto` or `RMarkdown` document.
+- the document is contained in an RStudio project
+- the project has been initialized with `renv`
+- the `renv.lock` details the dependencies necessary to run the analysis
+
+```{mermaid}
+stateDiagram
+    
+    s1: Locate Lockfile 
+    s2: Create the R script
+    s3: Create the Docker file 
+    s4: Build the Docker image
+    s5: Create the container image
+    s6: Log in to the GitLab registry
+    s7: Push Docker image to GitLab registry
+    s8: Create Submit File
+    s9: Create Executable file
+    s10: Copy analysis, data, submission, and executable files to CHTC submit node
+    
+    [*] --> s1
+    s1 --> s2
+    s2 --> s3
+    s3 --> s4
+    s4 --> s5
+    s5 --> s6
+    s6 --> s7
+    s7 --> s8
+    s8 -->s9
+    s9 --> s10
+    s10 --> [*]
+    
+
+```
+
+### Issues with this workflow
+
+The main issue with this workflow has to do with the fact that it ignores how often the various part of the submission process need to be carried out. 
+
+The way it is right now, every submission forces the entire workflow to run. However, the great majority of the use cases involves creating one analysis and making multiple submissions. 
+
+Additionaly, the CHTC folks indicated that retrieving results is a significant painpoint for many researchers. This workflow doesn't address that issue at all.
+
+### Improvements
+
+1. Split the workflow into logical phases that are representative of how often they need to be run
+
+2. Figure how to to best do multiple multiple submissions
+
+3. Develop a way to easily retrieve results
+
+4. Include a way to submit data from ResearchDrive
+
+5. Create an alternative workflow to submit to the HPC cluster
+
+6. Refactor the code to pass on parameters such as a customized submit file — rather than the vanilla submit file.
+
+
