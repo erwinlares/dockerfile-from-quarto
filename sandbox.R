@@ -10,7 +10,8 @@ submit_to_htc <- function(notebook,
                           submit_server = "ap2001",
                           gitlab_repo = "analysis",
                           gitlab_registry = "registry.doit.wisc.edu",
-                          gitlab_id = "erwin.lares"){
+                          gitlab_id = "erwin.lares", 
+                          ){ #submission_req = c(21, 12, 25)
 
 # 1/10
 print("Step 1 of 10 ... locating .lock file ...") 
@@ -83,7 +84,7 @@ print("Step 2 of 10 ... creating .R script file ... ")
     #    system(glue("podman build -t {gitlab_registry}/{gitlab_id}/{gitlab_repo} ."))
 
     print("Step 4 of 10 ... creating container image ... done")
-
+            
 # 5/10 Authenticate with the gitlab registry
     print("Step 5 of 10 ... logging in to GitLab registry ... ")
     #system(glue("podman login {gitlab_registry}"))
