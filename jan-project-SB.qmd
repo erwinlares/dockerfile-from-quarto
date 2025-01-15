@@ -40,27 +40,30 @@ Assumptions:
 - the document is contained in an RStudio project
 - the project has been initialized with `renv`
 - the `renv.lock` details the dependencies necessary to run the analysis
+- user needs to log in to chtc to cache credentials. There is additional steps that need to be taken to enable this functionality. [Documentation](https://chtc.cs.wisc.edu/uw-research-computing/configure-ssh) 
+- user needs to create a repo to match the submission job. Enable the registry and pay attention to naming conventions 
 
 ```{mermaid}
 stateDiagram
+
     
     s1: Locate Lockfile 
     s2: Create the R script
     s3: Create the Docker file 
     s4: Build the Docker image
-    s5: Create the container image
     s6: Log in to the GitLab registry
     s7: Push Docker image to GitLab registry
     s8: Create Submit File
     s9: Create Executable file
     s10: Copy analysis, data, submission, and executable files to CHTC submit node
+   
+    direction TB
     
     [*] --> s1
     s1 --> s2
     s2 --> s3
     s3 --> s4
-    s4 --> s5
-    s5 --> s6
+    s4 --> s6
     s6 --> s7
     s7 --> s8
     s8 -->s9
@@ -82,14 +85,64 @@ Additionaly, the CHTC folks indicated that retrieving results is a significant p
 
 1. Split the workflow into logical phases that are representative of how often they need to be run
 
-2. Figure how to to best do multiple multiple submissions
+2. Figure how to to best do multiple  submissions
 
 3. Develop a way to easily retrieve results
 
 4. Include a way to submit data from ResearchDrive
 
+6. Refactor the code to pass on parameters such as a customized submit file — rather than the vanilla submit file.
+
 5. Create an alternative workflow to submit to the HPC cluster
 
-6. Refactor the code to pass on parameters such as a customized submit file — rather than the vanilla submit file.
+## What the workflow should look like
+
+```{mermaid}
+stateDiagram
+
+    A: Run once — Check assumptions
+        a1: Locate Lockfile
+        a2: Create R script file
+    B: Run once — Manage Image
+        b1: Create Docker file
+        b2: Build Docker image 
+    C: Run once — Publish Docker Image
+        c1: Log in to GitLab Image Registry
+        c2: Push Docker image to Registry 
+    D: Run as often as needed
+        d1: Create Submit File
+        d2: Create Executable File 
+        d3: Upload files to Submit note
+        d4: Retrieve results 
+
+    direction TB
+    
+    [*] --> A
+    A --> B
+    state A {
+      direction LR
+      a1 --> a2
+    }
+    B --> C
+    state B {
+      direction LR
+      b1 --> b2
+    }
+    state C {
+      direction LR
+      c1 --> c2
+    }
+    C --> D
+    state D {
+      direction TB
+      d1 --> d2
+      d2 --> d3
+      d3 --> d4
+    }
+    D --> [*]
+
+```
+
+
 
 
