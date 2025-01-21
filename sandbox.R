@@ -132,7 +132,7 @@ submit_to_hpc("")
 
 
 
-map(script, data, submit_to_htc)
+#map(script, data, submit_to_htc)
 
 
 
@@ -143,10 +143,54 @@ map(script, data, submit_to_htc)
 
 
 
-if(str_extract(notebook, "(\\w+)$") %in% c("qmd","rmd")){
-    knitr::purl(notebook, documentation = 1)
-    print("Step 2 of 10 ... creating .R script file ")
-}
+# if(str_extract(notebook, "(\\w+)$") %in% c("qmd","rmd")){
+#     knitr::purl(notebook, documentation = 1)
+#     print("Step 2 of 10 ... creating .R script file ")
+# }
+
+
+data <- read_csv("data.csv")
+
+split_by <- c("sex", "island")
+sex <- NA
+data |> 
+    group_by(.data[[split_by]]) |> 
+    summarize(n = n())
+
+data |> 
+    group_by(sex, island) |> 
+    summarize(n = n())
+    
+
+# SS suggests https://ggplot2.tidyverse.org/reference/tidyeval.html
+# about splitting https://www.r-bloggers.com/2024/09/how-to-split-a-data-frame-in-r-a-comprehensive-guide-for-beginners/
+# https://forum.posit.co/t/how-to-use-map-with-group-by/182952
+# https://dplyr.tidyverse.org/reference/group_map.html
+
+data |> 
+    group_by(.data[[split_by[1]]], .data[[split_by[2]]]) |> 
+    group_split() |> View()
+
+#^^^ this seems to work 
+
+
+
+
+
+
+# Split the dataframe into a list of sublists based on the 'species' variable
+sublists <- split(data, data$species)
+
+# Use map() to write each sublist to a .csv file with the same name as the sublist
+ savesublists <- function(name){
+     write.csv(sub_lists[[name]], 
+               file = paste0("data/", name, ".csv"),
+               row.names = FALSE)
+ }
+
+map(names(sublists), save_sublists)
+
+
 
 
 
