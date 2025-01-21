@@ -31,7 +31,7 @@ This workflow details the steps involved in the job submission process. It assum
 
 %%| label: fig-shippingto-chtc
 %%| fig-cap: "Shipping an analysis to CHTC"
-flowchart LR
+flowchart TB
   A[start with a notebook<br> .rmd or .qmd] --> B(strips the code<br>builds a .R script)
   B --> C[Determines R version]
   B --> D[Locates .lock file]
@@ -42,7 +42,7 @@ flowchart LR
   G --> H[Pushes image to registry/gitlabuser/repo]
   H --> I[Creates submit file]
   I --> J[Creates executable file]
-  j --> K[Copies files + data <br>over CHTC's /home ]
+  J --> K[Copies files + data <br>over CHTC's /home ]
 ```
 
 
@@ -71,9 +71,9 @@ The argument `documentation` controls how much of the prose is ported as comment
 
 The following section includes a bit of information about containers. What is critical is that containers are a fantastic technology to make sure your analysis is reproducible as it encapsulates your code and everything needed to run it. In this draft I may be referring to container, docker container, or podman container interchangeably. 
 
-## Containerizing your analysis 
 
-### What's a container?
+::: {.callout-important collapse="true}
+## What's a container?
 
 A Docker container is a lightweight, portable, and self-sufficient environment that allows you to run applications in a consistent and isolated manner. Here's a breakdown of what makes Docker containers unique and useful:
 
@@ -90,8 +90,10 @@ A Docker container is a lightweight, portable, and self-sufficient environment t
 - **Ecosystem**: Docker has a robust ecosystem, including Docker Hub, where pre-built container images can be shared and downloaded. This encourages reuse and speeds up development.
 
 In essence, a container encapsulates an application and everything it needs to run, providing a consistent, portable, and efficient way to deploy and manage software. This has made containers an essential tool in modern DevOps practices and cloud-native application development.
+:::
 
-### What are the disadvantages of containers
+::: {.callout-tip collapse="true}
+## What are the disadvantages of containers
 
 While containers offer many benefits, they also come with some disadvantages. Here are a few to consider:
 
@@ -110,12 +112,12 @@ While containers offer many benefits, they also come with some disadvantages. He
 7. **Learning Curve**: Adopting Docker and containerization involves a learning curve for developers and operations teams. Understanding container concepts, best practices, and orchestration tools requires time and effort.
 
 Despite these challenges, many organizations find that the advantages of using Docker containers—such as portability, scalability, and consistency—outweigh the disadvantages. Proper planning, security practices, and resource management can mitigate many of these issues.
+::: 
 
-### Why/when should you put your analysis in a container 
+::: {.callout-note collapse="true}
+## Why/when should you put your analysis in a container 
 
 Packaging your analysis in a container can provide several benefits, especially in the context of research. Here are some scenarios when you might consider it, and the reasons why it's advantageous:
-
-### When to Consider Packaging Your Analysis:
 
 1. **Collaborative Projects**: When you're working with a team or collaborating with other researchers who need to run your analysis on their systems.
 2. **Reproducibility**: When ensuring that your analysis can be replicated exactly in the future, by others or by yourself.
@@ -123,16 +125,11 @@ Packaging your analysis in a container can provide several benefits, especially 
 4. **Complex Dependencies**: When your analysis involves multiple software dependencies, libraries, or specific versions that need to be maintained consistently.
 5. **Publications and Presentations**: When sharing your research findings through publications or presentations, ensuring others can replicate your work precisely.
 6. **Continuous Integration/Continuous Deployment (CI/CD)**: When integrating your analysis into a larger workflow that requires frequent updates or automated testing.
-
-### Why You Should Consider It:
-1. **Consistency**: Containers ensure that your analysis runs the same way on any environment, eliminating the "it works on my machine" problem.
-2. **Reproducibility**: By packaging your analysis in a container, you capture the exact environment, including dependencies and configurations, making it easier for others to reproduce your results.
-3. **Ease of Collaboration**: Sharing a container is straightforward, allowing collaborators to run your analysis without worrying about setting up their environment.
-4. **Simplified Deployment**: Containers simplify the process of deploying your analysis to different platforms, whether it's a local machine, a cloud service, or a shared research cluster.
 5. **Resource Efficiency**: Containers are lightweight and efficient, making them ideal for running resource-intensive analyses on various infrastructures.
 6. **Version Control**: With container images, you can version-control your analysis environment, ensuring that you can always revert to a previous state if needed.
 
 Overall, containers can greatly enhance the efficiency, reliability, and reproducibility of your research workflow, making them a powerful tool for modern researchers.
+:::
 
 ## Building a container from your analysis 
 
@@ -216,7 +213,7 @@ Once we have a Dockerfile, an image is created by running a `podman image build`
 ```{bash}
 
 
-podman build -t registry.doit.wisc.edu/erwin.lares/analysis .
+# podman build -t registry.doit.wisc.edu/erwin.lares/analysis .
 
 ```
 
@@ -238,7 +235,7 @@ You must login to UW-Madison GitLab Container Registry with your NetID credentia
 
 ```{bash}
 
-podman login registry.doit.wisc.edu
+# podman login registry.doit.wisc.edu
 
 ```
 
@@ -246,7 +243,7 @@ As your image was already created, the next step is to push the image to the Git
 
 ```{bash}
 
-podman push registry.doit.wisc.edu/erwin.lares/analysis
+# podman push registry.doit.wisc.edu/erwin.lares/analysis
 
 ```
 
@@ -376,7 +373,7 @@ The Linux command `scp` — secure copy — can take care of copying files from 
 
 ```{bash}
 
-scp analysis.R data.csv analysis.sub analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
+# scp analysis.R data.csv analysis.sub analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
 
 ```
 
