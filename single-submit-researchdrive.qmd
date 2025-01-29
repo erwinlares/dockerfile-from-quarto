@@ -377,10 +377,18 @@ The Linux command `scp` — secure copy — can take care of copying files from 
 
 ```{bash}
 
-scp analysis.R data.csv analysis.sub analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
+scp analysis.R analysis.sub analysis.sh lares@ap2001.chtc.wisc.edu:/home/lares
 
 ```
 
+
+### Data from ResearchDrive
+
+SSH into CHTC
+
+Run `smbclient -k //research.drive.wisc.edu/lares`
+
+Prompt changes to `smb: \>`
 
 ## The last step 
 
