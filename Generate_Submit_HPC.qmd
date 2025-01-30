@@ -1,0 +1,74 @@
+
+### Converting Container to Singularity Format Image File
+
+To run on HPC Cluster you must first convert containers to a Singularity Format Image File. 
+
+Once logged into the cluster, the steps include:
+
+Starting an interactive job.
+
+```{bash}
+
+srun -n4 -N1 -p int --pty bash
+
+```
+
+Unsetting a Shell environment variable that would prevent the download of the container
+
+```{bash}
+
+unset HTTPS_PROXY
+
+```
+
+Then saving the container file locally on the cluster.
+
+```{bash}
+
+singularity build /location/inside/cluster/analysis.simg docker://registry.doit.wisc.edu/erwin.lares/analysis
+
+```
+
+Then you have to exit the job.
+
+```{bash}
+
+exit
+
+```
+
+### Generating the submit file 
+
+```{r}
+shebang <- c("#!/bin/sh",
+             "")
+
+sbatch_options <- c("#SBATCH --partition=shared",
+                    "#SBATCH --time=0-04:30:00",
+                    "#SBATCH --nodes=1",
+                    "#SBATCH --ntasks-per-node=64",
+                    "#SBATCH --mem=4000",
+                    "#SBATCH --error=job.%J.err",
+                    "#SBATCH --output=job.%J.out")
+
+# Make sure to change the above two lines to reflect your appropriate
+# file locations for standard error and output
+
+# Now list your executable command (or a string of them).
+# Example for code compiled with a software module:
+
+excecutable <- c("MPI_DIR=/software/chtc/easybuild/v2/software/OpenMPI/4.0.5-GCC-9.3.0/",
+"mpirun -np 40 singularity exec --bind $MPI_DIR path/to/container.simg ./________")
+
+readr::write_lines(shebang, file = "analysis.sh")
+readr::write_lines(sbatch_options, file = "analysis.sh", append = TRUE)
+readr::write_lines(excecutable, file = "analysis.sh", append = TRUE)
+
+```
+
+
+```{r}
+
+
+
+```
