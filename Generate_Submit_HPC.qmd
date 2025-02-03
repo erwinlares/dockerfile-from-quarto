@@ -58,7 +58,7 @@ sbatch_options <- c("#SBATCH --partition=shared",
 # Example for code compiled with a software module:
 
 excecutable <- c("MPI_DIR=/software/chtc/easybuild/v2/software/OpenMPI/4.0.5-GCC-9.3.0/",
-"mpirun -np 40 singularity exec --bind $MPI_DIR path/to/container.simg ./________")
+"mpirun -np 40 singularity exec --bind $MPI_DIR path/to/container.simg Rscript analysis.R")
 
 readr::write_lines(shebang, file = "analysis.sh")
 readr::write_lines(sbatch_options, file = "analysis.sh", append = TRUE)
