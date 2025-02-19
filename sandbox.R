@@ -181,14 +181,19 @@ data |>
 # Split the dataframe into a list of sublists based on the 'species' variable
 sublists <- split(data, data$species)
 
+#what if you take a different variable, like sex, or year? 
+
+sublists <- split(data, data$year)
+
+
 # Use map() to write each sublist to a .csv file with the same name as the sublist
  savesublists <- function(name){
-     write.csv(sub_lists[[name]], 
+     write.csv(sublists[[name]], 
                file = paste0("data/", name, ".csv"),
                row.names = FALSE)
  }
 
-map(names(sublists), save_sublists)
+map(names(sublists), savesublists)
 
 
 
